@@ -1,15 +1,3 @@
 {
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "outputDirectory": "dist"
+  "buildCommand": "npm install --legacy-peer-deps && npm run build"
 }
