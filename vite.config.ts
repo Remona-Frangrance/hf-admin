@@ -15,4 +15,7 @@ export default defineConfig({
       },
     }),
   ],
+   build: {
+    outDir: "dist", // 👈 This tells Vercel and local builds where to output
+  },
 });
