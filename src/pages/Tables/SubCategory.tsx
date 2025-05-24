@@ -12,11 +12,11 @@ export default function SubcategoriesPage() {
       />
       <PageBreadcrumb 
         pageTitle="Subcategories"
-        breadCrumbItems={[
-          { title: "Dashboard", path: "/dashboard" },
-          { title: "Categories", path: "/categories" },
-          { title: "Subcategories", active: true }
-        ]}
+        // items={[
+        //   { title: "Dashboard", path: "/dashboard" },
+        //   { title: "Categories", path: "/categories" },
+        //   { title: "Subcategories", active: true }
+        // ]}
       />
       <div className="space-y-6">
         <ComponentCard title="Subcategories List">
