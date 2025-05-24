@@ -28,7 +28,7 @@ export const fetchCategories = createAsyncThunk(
   'category/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get('https://hf-backend-3-u0gd.onrender.com/api/categories');
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -42,7 +42,7 @@ export const addCategory = createAsyncThunk(
   'category/add',
   async (categoryData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/categories', categoryData, {
+      const response = await axios.post('https://hf-backend-3-u0gd.onrender.com/api/categories', categoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -60,7 +60,7 @@ export const updateCategory = createAsyncThunk(
   'category/update',
   async ({ id, categoryData }: { id: string; categoryData: FormData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/categories/${id}`, categoryData, {
+      const response = await axios.put(`https://hf-backend-3-u0gd.onrender.com/api/categories/${id}`, categoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -78,7 +78,7 @@ export const deleteCategory = createAsyncThunk(
   'category/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`http://localhost:5000/api/categories/${id}`);
+      await axios.delete(`https://hf-backend-3-u0gd.onrender.com/api/categories/${id}`);
       return id;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
