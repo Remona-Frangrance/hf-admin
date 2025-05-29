@@ -41,7 +41,7 @@ export const fetchSubcategories = createAsyncThunk(
   'subcategory/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('https://hf-backend-3-u0gd.onrender.com/api/subcategories');
+      const response = await axios.get('https://hf-backend-4-mv62.onrender.com/api/subcategories');
       return response.data;
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -55,7 +55,7 @@ export const addSubcategory = createAsyncThunk(
   'subcategory/add',
   async (subcategoryData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('https://hf-backend-3-u0gd.onrender.com/api/subcategories', subcategoryData, {
+      const response = await axios.post('https://hf-backend-4-mv62.onrender.com/api/subcategories', subcategoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -73,7 +73,7 @@ export const updateSubcategory = createAsyncThunk(
   'subcategory/update',
   async ({ id, subcategoryData }: { id: string; subcategoryData: FormData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://hf-backend-3-u0gd.onrender.com/api/subcategories/${id}`, subcategoryData, {
+      const response = await axios.put(`https://hf-backend-4-mv62.onrender.com/api/subcategories/${id}`, subcategoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -91,7 +91,7 @@ export const deleteSubcategory = createAsyncThunk(
   'subcategory/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://hf-backend-3-u0gd.onrender.com/api/subcategories/${id}`);
+      await axios.delete(`https://hf-backend-4-mv62.onrender.com/api/subcategories/${id}`);
       return id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {  
@@ -149,7 +149,7 @@ const subcategorySlice = createSlice({
         state.error = null;
       })
       .addCase(updateSubcategory.fulfilled, (state, action: PayloadAction<Subcategory>) => {
-        const index = state.subcategories.findIndex(sub => sub.id === action.payload.id);
+        const index = state.subcategories.findIndex(sub => sub._id === action.payload.id);
         if (index !== -1) {
           state.subcategories[index] = action.payload;
         }
@@ -167,7 +167,7 @@ const subcategorySlice = createSlice({
         state.error = null;
       })
       .addCase(deleteSubcategory.fulfilled, (state, action: PayloadAction<string>) => {
-        state.subcategories = state.subcategories.filter(sub => sub.id !== action.payload);
+        state.subcategories = state.subcategories.filter(sub => sub._id !== action.payload);
         state.loading = false;
       })
          // eslint-disable-next-line @typescript-eslint/no-explicit-any

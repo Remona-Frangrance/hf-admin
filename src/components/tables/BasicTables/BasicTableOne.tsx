@@ -21,6 +21,7 @@ import {
   updateCategory
 } from "../../../redux/slices/categorySlice";
 import { AppDispatch } from "../../../redux/slices/store";
+import { FiLoader } from 'react-icons/fi';
 
 export default function BasicTableOne() {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +37,7 @@ export default function BasicTableOne() {
   const [newCategory, setNewCategory] = useState({
     name: "",
     image: null as File | null,
+    description: "",
     previewImage: "",
   });
 
@@ -53,6 +55,8 @@ export default function BasicTableOne() {
     
     const formData = new FormData();
     formData.append("name", newCategory.name);
+    formData.append("description", newCategory.description);
+    // Append image if it exists
     if (newCategory.image) {
       formData.append("coverImage", newCategory.image);
     }
@@ -62,6 +66,7 @@ export default function BasicTableOne() {
       setIsDialogOpen(false);
       setNewCategory({
         name: "",
+        description: "",
         image: null,
         previewImage: "",
       });
@@ -70,31 +75,33 @@ export default function BasicTableOne() {
     }
   };
 
-  const handleUpdateCategory = async () => {
-    if (!currentCategory?.name?.trim()) {
-      setFormError("Category name is required");
-      return;
-    }
+const handleUpdateCategory = async () => {
+  if (!currentCategory?.name?.trim()) {
+    setFormError("Category name is required");
+    return;
+  }
 
-    setFormError(null);
-    
-    const formData = new FormData();
-    formData.append("name", currentCategory.name);
-    if (currentCategory.image) {
-      formData.append("coverImage", currentCategory.image);
-    }
+  setFormError(null);
 
-    try {
-      await dispatch(updateCategory({
-        id: currentCategory._id,
-        categoryData: formData
-      })).unwrap();
-      setIsEditDialogOpen(false);
-      setCurrentCategory(null);
-    } catch (error) {
-      setFormError(error as string);
-    }
-  };
+  const formData = new FormData();
+  formData.append("name", currentCategory.name);
+  formData.append("description", currentCategory.description || "");
+  if (currentCategory.image) {
+    formData.append("coverImage", currentCategory.image); // ✅ fixed line
+  }
+
+  try {
+    await dispatch(updateCategory({
+      id: currentCategory._id,
+      categoryData: formData
+    })).unwrap();
+    setIsEditDialogOpen(false);
+    setCurrentCategory(null);
+  } catch (error) {
+    setFormError(error as string);
+  }
+};
+
 
   const handleDeleteCategory = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
@@ -135,7 +142,12 @@ export default function BasicTableOne() {
   };
 
   if (loading && categories.length === 0) {
-    return <div className="p-4 text-center">Loading categories...</div>;
+    return (
+    <div className="p-6 flex flex-col items-center justify-center text-gray-600">
+      <FiLoader className="animate-spin text-3xl mb-2" />
+      <span className="text-sm">Fetching subcategories...</span>
+    </div>
+  );
   }
 
   if (error) {
@@ -250,31 +262,126 @@ export default function BasicTableOne() {
             }
           />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Category Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-primary file:text-white
-                hover:file:bg-primary-dark"
-            />
-            {newCategory.previewImage && (
-              <div className="mt-2">
-                <img
-                  src={newCategory.previewImage}
-                  alt="Preview"
-                  className="h-20 w-20 object-cover rounded"
-                />
+         <div className="space-y-4">
+  {/* Enhanced Description Field */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      Description
+      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">(optional)</span>
+    </label>
+    <textarea
+      className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm 
+        focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:ring-opacity-50
+        bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+        px-3 py-2 text-sm transition-all duration-150 ease-in-out
+        placeholder-gray-400 dark:placeholder-gray-500"
+      placeholder="Enter a detailed description of your category..."
+      value={newCategory.description}
+      onChange={(e) =>
+        setNewCategory({ ...newCategory, description: e.target.value })
+      }
+      rows={4}
+    />
+    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+      Maximum 500 characters
+    </p>
+  </div>
+
+  {/* Enhanced Image Upload Field */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      Category Image
+      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">(recommended)</span>
+    </label>
+    
+    <div className="flex items-center gap-4">
+      <label className="flex flex-col items-center justify-center w-full">
+        <div className="
+          flex flex-col items-center justify-center w-full h-32
+          border-2 border-dashed border-gray-300 dark:border-gray-600
+          rounded-lg bg-gray-50 dark:bg-gray-700/50
+          hover:bg-gray-100 dark:hover:bg-gray-700/70
+          cursor-pointer transition-colors duration-150
+        ">
+          {newCategory.previewImage ? (
+            <div className="relative w-full h-full group">
+              <img
+                src={newCategory.previewImage}
+                alt="Preview"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <div className="
+                absolute inset-0 bg-black/30 opacity-0
+                group-hover:opacity-100 transition-opacity
+                flex items-center justify-center
+              ">
+                <span className="text-white text-sm font-medium">
+                  Change Image
+                </span>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-4 text-center">
+              <svg
+                className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="font-semibold text-primary-600 dark:text-primary-400">
+                  Click to upload
+                </span>{' '}
+                or drag and drop
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                PNG, JPG, GIF up to 5MB
+              </p>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </div>
+      </label>
+    </div>
+    
+    {newCategory.previewImage && (
+      <div className="flex justify-end mt-2">
+        <button
+          type="button"
+          onClick={() => setNewCategory({...newCategory, previewImage: ''})}
+          className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 flex items-center"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+          Remove Image
+        </button>
+      </div>
+    )}
+  </div>
+</div>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button
@@ -315,32 +422,99 @@ export default function BasicTableOne() {
               setCurrentCategory({ ...currentCategory, name: e.target.value })
             }
           />
+<div className="space-y-6">
+  {/* Enhanced Description Field */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      Description
+      <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">(optional)</span>
+    </label>
+    <textarea
+      className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm 
+        focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:ring-opacity-50
+        bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+        px-4 py-2.5 text-sm transition-all duration-150 ease-in-out
+        placeholder-gray-400 dark:placeholder-gray-500 min-h-[120px]"
+      placeholder="Enter a detailed description of your category..."
+      value={currentCategory?.description || ''}
+      onChange={(e) =>
+        setCurrentCategory({ ...currentCategory, description: e.target.value })
+      }
+      rows={4}
+    />
+    <div className="flex justify-between mt-1">
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        Maximum 500 characters
+      </p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        {currentCategory?.description?.length || 0}/500
+      </p>
+    </div>
+  </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Category Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleEditImageChange}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-primary file:text-white
-                hover:file:bg-primary-dark"
+  {/* Enhanced Image Upload Field */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      Category Image
+      <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">(recommended)</span>
+    </label>
+    
+    <div className="flex flex-col sm:flex-row gap-4 items-start">
+      {/* Image Preview */}
+      {currentCategory?.previewImage ? (
+        <div className="relative group">
+          <div className="w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
+            <img
+              src={currentCategory.previewImage}
+              alt="Preview"
+              className="w-full h-full object-cover"
             />
-            {currentCategory?.previewImage && (
-              <div className="mt-2">
-                <img
-                  src={currentCategory.previewImage}
-                  alt="Preview"
-                  className="h-20 w-20 object-cover rounded"
-                />
-              </div>
-            )}
           </div>
+          <button
+            type="button"
+            onClick={() => setCurrentCategory({...currentCategory, previewImage: ''})}
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center 
+              opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+            aria-label="Remove image"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <div className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-700/30">
+          <svg className="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      )}
+      
+      {/* Upload Button */}
+      <div className="flex-1">
+        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+          <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+            <svg className="w-8 h-8 mb-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-semibold text-primary-600 dark:text-primary-400">Click to upload</span> or drag and drop
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              SVG, PNG, JPG (max. 5MB)
+            </p>
+          </div>
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={handleEditImageChange} 
+            className="hidden" 
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button

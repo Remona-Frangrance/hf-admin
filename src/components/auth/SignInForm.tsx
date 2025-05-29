@@ -19,11 +19,16 @@ const navigate = useNavigate();
 const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(login({ email, password }));
-    navigate('/home')
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const resultAction = await dispatch(login({ email, password }));
+
+  if (login.fulfilled.match(resultAction)) {
+    navigate('/home');
+  }
+  // else: don't navigate, error will show from Redux state
+};
 
   return (
     <div className="flex flex-col flex-1">

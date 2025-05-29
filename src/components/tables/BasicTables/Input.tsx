@@ -8,6 +8,10 @@ interface InputProps {
   type?: string;
   className?: string;
   disabled?: boolean;
+  name?: string;
+  id?: string;
+  required?: boolean;
+  error?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -18,25 +22,52 @@ const Input: React.FC<InputProps> = ({
   type = "text",
   className = "",
   disabled = false,
+  name,
+  id,
+  required = false,
+  error,
 }) => {
+  const inputId = id || name || `input-${label?.toLowerCase().replace(/\s+/g, "-") || Math.random()}`;
+
   return (
     <div className={`space-y-1 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           {label}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
+
       <input
+        id={inputId}
+        name={name}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`block w-full rounded-md border-gray-300 shadow-sm 
-          focus:border-primary focus:ring-primary sm:text-sm
-          dark:bg-gray-800 dark:border-gray-700 dark:text-white
-          ${disabled ? "bg-gray-100 dark:bg-gray-700" : ""}`}
+        required={required}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        className={`
+          block w-full rounded-md border px-3 py-2 shadow-sm sm:text-sm
+          focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+          ${disabled ? "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400" : "bg-white dark:bg-gray-800 dark:text-white"}
+          ${error ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-gray-600"}
+        `}
       />
+
+      {error && (
+        <p
+          id={`${inputId}-error`}
+          className="text-xs text-red-500 mt-1"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 };
