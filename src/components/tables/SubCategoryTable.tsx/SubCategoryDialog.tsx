@@ -13,7 +13,7 @@ interface SubcategoryDialogProps {
   onClose: () => void;
 }
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 100;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
 export default function SubcategoryDialog({ isOpen, onClose }: SubcategoryDialogProps) {
