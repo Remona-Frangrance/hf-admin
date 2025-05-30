@@ -28,7 +28,7 @@ export const fetchCategories = createAsyncThunk(
   'category/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('hhttps://hf-backend-4-mv62.onrender.com/api/categories');
+      const response = await axios.get('https://hf-backend-4-mv62.onrender.com/api/categories');
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
