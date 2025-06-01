@@ -33,8 +33,8 @@ export const fetchGallery = createAsyncThunk<
   async (params, { rejectWithValue }) => {
     try {
       const url = params?.subcategory
-        ? `http://localhost:5000/api/gallery?subcategory=${encodeURIComponent(params.subcategory)}`
-        : 'http://localhost:5000/api/gallery';
+        ? `https://hf-backend-4-mv62.onrender.com/api/gallery?subcategory=${encodeURIComponent(params.subcategory)}`
+        : 'https://hf-backend-4-mv62.onrender.com/api/gallery';
       const response = await axios.get(url);
       return response.data;
     } catch (error: any) {
@@ -52,7 +52,7 @@ export const addGalleryItem = createAsyncThunk<
   'gallery/add',
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/gallery/add', formData, {
+      const response = await axios.post('https://hf-backend-4-mv62.onrender.com/api/gallery/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -73,7 +73,7 @@ export const updateGalleryItem = createAsyncThunk<
   'gallery/update',
   async ({ id, formData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/gallery/${id}`, formData, {
+      const response = await axios.put(`https://hf-backend-4-mv62.onrender.com/api/gallery/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -94,7 +94,7 @@ export const deleteGalleryItem = createAsyncThunk<
   'gallery/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`http://localhost:5000/api/gallery/${id}`);
+      await axios.delete(`https://hf-backend-4-mv62.onrender.com/api/gallery/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete gallery item');
