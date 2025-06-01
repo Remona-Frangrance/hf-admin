@@ -3,12 +3,15 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
 import categoryReducer from './categorySlice';
 import subcategoryReducer from './subCategorySlice';
+import galleryReducer from './gallerySlice';
+
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     category: categoryReducer ,
-    subcategory: subcategoryReducer
+    subcategory: subcategoryReducer,
+    gallery: galleryReducer
   }
 });
 

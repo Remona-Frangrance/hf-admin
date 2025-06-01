@@ -145,7 +145,7 @@ const handleUpdateCategory = async () => {
     return (
     <div className="p-6 flex flex-col items-center justify-center text-gray-600">
       <FiLoader className="animate-spin text-3xl mb-2" />
-      <span className="text-sm">Fetching subcategories...</span>
+      <span className="text-sm">Fetching categories...</span>
     </div>
   );
   }

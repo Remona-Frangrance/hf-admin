@@ -19,6 +19,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import SubcategoriesPage from "./pages/Tables/SubCategory";
+import GalleryTable from "./components/tables/GalleryTable/GalleryTable";
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             {/* Tables */}
             <Route path="/categories" element={<BasicTables />} />
             <Route path="/sub-categories" element={<SubcategoriesPage />} />
+          <Route path="/gallery" element={<GalleryTable />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

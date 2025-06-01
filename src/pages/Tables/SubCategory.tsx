@@ -1,7 +1,7 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
-import SubcategoriesTable from "../../components/tables/SubCategoryTable.tsx/SubCategoryTable";
+import SubcategoriesTable from "../../components/tables/SubCategoryTable/SubCategoryTable";
 
 export default function SubcategoriesPage() {
   return (
