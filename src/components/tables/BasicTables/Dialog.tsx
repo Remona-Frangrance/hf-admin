@@ -35,7 +35,7 @@ const Dialog: React.FC<DialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 backdrop-blur-sm pt-20">
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-black/40 transition-opacity"
@@ -45,7 +45,7 @@ const Dialog: React.FC<DialogProps> = ({
 
       {/* Dialog */}
       <div
-        className={`relative z-10 w-full max-h-[90vh] rounded-2xl bg-white shadow-xl transition-all duration-300 ease-out dark:bg-zinc-900 dark:text-white ${sizeClasses[size]} flex flex-col`}
+        className={`relative z-10 w-full max-h-[75vh] rounded-2xl bg-white shadow-xl transition-all duration-300 ease-out dark:bg-zinc-900 dark:text-white ${sizeClasses[size]} flex flex-col`}
         role="dialog"
         aria-modal="true"
       >

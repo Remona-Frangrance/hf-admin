@@ -4,6 +4,7 @@ import authReducer from './authSlice';
 import categoryReducer from './categorySlice';
 import subcategoryReducer from './subCategorySlice';
 import galleryReducer from './gallerySlice';
+import metricsReducer from './metricsSlice';
 
 
 const store = configureStore({
@@ -11,7 +12,8 @@ const store = configureStore({
     auth: authReducer,
     category: categoryReducer ,
     subcategory: subcategoryReducer,
-    gallery: galleryReducer
+    gallery: galleryReducer,
+     metrics: metricsReducer,
   }
 });
 

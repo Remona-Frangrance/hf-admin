@@ -11,14 +11,15 @@ import {
 import Button from "../../ui/button/Button";
 import Dialog from "./Dialog";
 import Input from "./Input";
-import { 
-  addCategory, 
-  fetchCategories, 
+import {
+  addCategory,
+  fetchCategories,
   deleteCategory,
-  selectCategories, 
-  selectCategoriesLoading, 
-  selectCategoriesError, 
-  updateCategory
+  selectCategories,
+  selectCategoriesLoading,
+  selectCategoriesError,
+  selectCategoriesPagination,
+  updateCategory,
 } from "../../../redux/slices/categorySlice";
 import { AppDispatch } from "../../../redux/slices/store";
 import { FiLoader } from 'react-icons/fi';
@@ -28,7 +29,9 @@ export default function BasicTableOne() {
   const categories = useSelector(selectCategories) || [];
   const loading = useSelector(selectCategoriesLoading);
   const error = useSelector(selectCategoriesError);
-  
+  const pagination = useSelector(selectCategoriesPagination);
+
+  const [page, setPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,21 +45,19 @@ export default function BasicTableOne() {
   });
 
   useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+    dispatch(fetchCategories({ page, limit: 8 }));
+  }, [dispatch, page]);
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
       setFormError("Category name is required");
       return;
     }
-
     setFormError(null);
-    
+
     const formData = new FormData();
     formData.append("name", newCategory.name);
     formData.append("description", newCategory.description);
-    // Append image if it exists
     if (newCategory.image) {
       formData.append("coverImage", newCategory.image);
     }
@@ -64,44 +65,34 @@ export default function BasicTableOne() {
     try {
       await dispatch(addCategory(formData)).unwrap();
       setIsDialogOpen(false);
-      setNewCategory({
-        name: "",
-        description: "",
-        image: null,
-        previewImage: "",
-      });
+      setNewCategory({ name: "", description: "", image: null, previewImage: "" });
     } catch (error) {
       setFormError(error as string);
     }
   };
 
-const handleUpdateCategory = async () => {
-  if (!currentCategory?.name?.trim()) {
-    setFormError("Category name is required");
-    return;
-  }
+  const handleUpdateCategory = async () => {
+    if (!currentCategory?.name?.trim()) {
+      setFormError("Category name is required");
+      return;
+    }
+    setFormError(null);
 
-  setFormError(null);
+    const formData = new FormData();
+    formData.append("name", currentCategory.name);
+    formData.append("description", currentCategory.description || "");
+    if (currentCategory.image) {
+      formData.append("coverImage", currentCategory.image);
+    }
 
-  const formData = new FormData();
-  formData.append("name", currentCategory.name);
-  formData.append("description", currentCategory.description || "");
-  if (currentCategory.image) {
-    formData.append("coverImage", currentCategory.image); // ✅ fixed line
-  }
-
-  try {
-    await dispatch(updateCategory({
-      id: currentCategory._id,
-      categoryData: formData
-    })).unwrap();
-    setIsEditDialogOpen(false);
-    setCurrentCategory(null);
-  } catch (error) {
-    setFormError(error as string);
-  }
-};
-
+    try {
+      await dispatch(updateCategory({ id: currentCategory._id, categoryData: formData })).unwrap();
+      setIsEditDialogOpen(false);
+      setCurrentCategory(null);
+    } catch (error) {
+      setFormError(error as string);
+    }
+  };
 
   const handleDeleteCategory = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
@@ -133,48 +124,22 @@ const handleUpdateCategory = async () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openEditDialog = (category: any) => {
-    setCurrentCategory({
-      ...category,
-      image: null,
-      previewImage: category.coverImage
-    });
+    setCurrentCategory({ ...category, image: null, previewImage: category.coverImage });
     setIsEditDialogOpen(true);
   };
 
   if (loading && categories.length === 0) {
-    return (
-    <div className="p-6 flex flex-col items-center justify-center text-gray-600">
-      <FiLoader className="animate-spin text-3xl mb-2" />
-      <span className="text-sm">Fetching categories...</span>
-    </div>
-  );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 text-red-500 bg-red-50 rounded-lg">
-        Error loading categories: {error}
-      </div>
-    );
+    return <div className="flex justify-center items-center h-64"><FiLoader className="animate-spin" size={24} /></div>;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          onClick={() => setIsDialogOpen(true)}
-          color="primary"
-          className="mb-4"
-        >
-          Add Category
-        </Button>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Categories</h2>
+        <Button onClick={() => setIsDialogOpen(true)}>Add Category</Button>
       </div>
 
-      {error && (
-        <div className="p-4 text-red-500 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
@@ -200,23 +165,21 @@ const handleUpdateCategory = async () => {
               {categories.map((category) => (
                 <TableRow key={category._id}>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
-                    <div className="w-10 h-10 overflow-hidden rounded-full">
+                    <div className="w-16 h-16 overflow-hidden rounded-md border border-gray-200">
                       <img
-                        width={40}
-                        height={40}
                         src={category.coverImage}
                         alt={category.name}
                         className="object-cover w-full h-full"
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-sm dark:text-gray-400">
                     {category.name}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {category.description || 'No description'}
+                  <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+                    {category.description || 'N/A'}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex space-x-2">
                       <Button 
                         size="sm" 
@@ -241,7 +204,29 @@ const handleUpdateCategory = async () => {
         </div>
       </div>
 
-      {/* Add Category Dialog */}
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <Button 
+          disabled={page <= 1} 
+          onClick={() => setPage(page - 1)}
+          color="secondary"
+          size="sm"
+        >
+          Previous
+        </Button>
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          Page {pagination.page} of {pagination.totalPages}
+        </span>
+        <Button
+          disabled={page >= pagination.totalPages}
+          onClick={() => setPage(page + 1)}
+          color="secondary"
+          size="sm"
+        >
+          Next
+        </Button>
+      </div>
+
       <Dialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}

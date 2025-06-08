@@ -1,6 +1,7 @@
 // src/redux/slices/categorySlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { RootState } from './store';
 
 interface Category {
   _id: string; // Changed from id to _id to match MongoDB
@@ -12,6 +13,12 @@ interface Category {
 }
 
 interface CategoryState {
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
   categories: Category[];
   isLoading: boolean;
   error: string | null;
@@ -21,21 +28,34 @@ const initialState: CategoryState = {
   categories: [],
   isLoading: false,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 8,
+    totalItems: 0,
+    totalPages: 0,
+  },
 };
 
 // Fetch all categories
+// redux/slices/categorySlice.ts
 export const fetchCategories = createAsyncThunk(
   'category/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (
+    { page = 1, limit = 8 }: { page?: number; limit?: number },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.get('https://hf-backend-4-mv62.onrender.com/api/categories');
-      return response.data;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await axios.get(
+        `http://localhost:5000/api/categories?page=${page}&limit=${limit}`
+      );
+      return response.data; // contains { data: [...], pagination: {...} }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch categories');
     }
   }
 );
+
 
 // Add new category
 export const addCategory = createAsyncThunk(
@@ -101,10 +121,12 @@ const categorySlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchCategories.fulfilled, (state, action: PayloadAction<Category[]>) => {
-        state.categories = action.payload;
-        state.isLoading = false;
-      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+  state.categories = action.payload.data;
+  state.pagination = action.payload.pagination;
+  state.isLoading = false;
+  state.error = null;
+})
       .addCase(fetchCategories.rejected, 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (state, action: PayloadAction<any>) => {
@@ -163,5 +185,5 @@ export const { clearCategories } = categorySlice.actions;
 export const selectCategories = (state: { category: CategoryState }) => state.category.categories;
 export const selectCategoriesLoading = (state: { category: CategoryState }) => state.category.isLoading;
 export const selectCategoriesError = (state: { category: CategoryState }) => state.category.error;
-
+export const selectCategoriesPagination = (state: RootState) => state.category.pagination;
 export default categorySlice.reducer;
