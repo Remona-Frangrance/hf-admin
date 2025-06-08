@@ -46,7 +46,7 @@ export const fetchCategories = createAsyncThunk(
   ) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/categories?page=${page}&limit=${limit}`
+        `https://hf-backend-4-mv62.onrender.com/api/categories?page=${page}&limit=${limit}`
       );
       return response.data; // contains { data: [...], pagination: {...} }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

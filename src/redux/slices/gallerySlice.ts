@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -37,6 +38,7 @@ export const fetchGallery = createAsyncThunk<
         : 'https://hf-backend-4-mv62.onrender.com/api/gallery';
       const response = await axios.get(url);
       return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch gallery');
     }
