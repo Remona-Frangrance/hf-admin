@@ -33,7 +33,7 @@ export default function SubcategoryDialog({ isOpen, onClose }: SubcategoryDialog
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(fetchCategories({}));
   }, [dispatch]);
 
  useEffect(() => {
