@@ -1,5 +1,6 @@
 // features/metrics/metricsSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_BASE } from '../../config/api';
 
 type MetricsState = {
   totalCategories: number;
@@ -20,7 +21,7 @@ export const fetchMetrics = createAsyncThunk(
   'metrics/fetchMetrics',
   async (_, thunkAPI) => {
     try {
-      const res = await fetch('https://hf-backend-production.up.railway.app/admin/metrics');
+      const res = await fetch(`${API_BASE}/admin/metrics`);
       if (!res.ok) throw new Error('Failed to fetch metrics');
       return await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

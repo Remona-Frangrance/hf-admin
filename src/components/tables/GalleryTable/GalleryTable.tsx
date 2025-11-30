@@ -27,7 +27,7 @@ interface GalleryItem {
   _id: string;
   title: string;
   description?: string;
-  imageUrl: string;
+  images: string[];
   subcategory?: string;
 }
 
@@ -39,21 +39,21 @@ export default function GalleryTable() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState<GalleryItem & { image?: File | null; previewImage: string } | null>(null);
+  const [currentItem, setCurrentItem] = useState<GalleryItem & { newImages?: File[]; previews: string[] } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [newItem, setNewItem] = useState<{
     title: string;
     description: string;
     subcategory: string;
-    image: File | null;
-    previewImage: string;
+    images: File[];
+    previews: string[];
   }>({
     title: "",
     description: "",
     subcategory: "",
-    image: null,
-    previewImage: "",
+    images: [],
+    previews: [],
   });
 
   useEffect(() => {
@@ -72,9 +72,7 @@ export default function GalleryTable() {
     formData.append("title", newItem.title);
     formData.append("description", newItem.description);
     formData.append("subcategory", newItem.subcategory);
-    if (newItem.image) {
-      formData.append("image", newItem.image);
-    }
+    newItem.images.forEach((file) => formData.append("images", file));
 
     try {
       await dispatch(addGalleryItem(formData)).unwrap();
@@ -83,8 +81,8 @@ export default function GalleryTable() {
         title: "",
         description: "",
         subcategory: "",
-        image: null,
-        previewImage: "",
+        images: [],
+        previews: [],
       });
     } catch (error) {
       setFormError(error as string);
@@ -103,8 +101,8 @@ export default function GalleryTable() {
     formData.append("title", currentItem.title);
     formData.append("description", currentItem.description || "");
     formData.append("subcategory", currentItem.subcategory || "");
-    if (currentItem.image) {
-      formData.append("image", currentItem.image);
+    if (currentItem && currentItem.newImages) {
+      currentItem.newImages.forEach((file: File) => formData.append("images", file));
     }
 
     try {
@@ -126,23 +124,30 @@ export default function GalleryTable() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      if (files.length > 15) {
+        setFormError("You can upload a maximum of 15 images at once.");
+      }
+      const limited = files.slice(0, 15);
+      const previews = limited.map((file) => URL.createObjectURL(file));
       setNewItem({
         ...newItem,
-        image: file,
-        previewImage: URL.createObjectURL(file),
+        images: limited,
+        previews,
       });
     }
   };
 
   const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    if (e.target.files && e.target.files.length > 0 && currentItem) {
+      const files = Array.from(e.target.files);
+      const limited = files.slice(0, 15);
+      const newPreviews = limited.map((file) => URL.createObjectURL(file));
       setCurrentItem({
-        ...currentItem!,
-        image: file,
-        previewImage: URL.createObjectURL(file),
+        ...currentItem,
+        newImages: limited,
+        previews: [...(currentItem.images || []), ...newPreviews],
       });
     }
   };
@@ -150,8 +155,8 @@ export default function GalleryTable() {
   const openEditDialog = (item: GalleryItem) => {
     setCurrentItem({
       ...item,
-      image: null,
-      previewImage: item.imageUrl,
+      newImages: [],
+      previews: item.images || [],
     });
     setIsEditDialogOpen(true);
   };
@@ -218,14 +223,21 @@ export default function GalleryTable() {
               {galleryItems.map((item) => (
                 <TableRow key={item._id}>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
-                    <div className="w-16 h-16 overflow-hidden rounded-md">
-                      <img
-                        width={64}
-                        height={64}
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="object-cover w-full h-full"
-                      />
+                    <div className="flex -space-x-2">
+                      {(item.images || []).slice(0, 3).map((img, index) => (
+                        <div key={index} className="w-8 h-8 overflow-hidden rounded-full border-2 border-white">
+                          <img
+                            src={img}
+                            alt={`Gallery ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      ))}
+                      {item.images && item.images.length > 3 && (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs">
+                          +{item.images.length - 3}
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
@@ -300,19 +312,19 @@ export default function GalleryTable() {
           />
 
           <Input
-            label="Image"
+            label="Images"
             type="file"
+            multiple
             value=""
             onChange={handleImageChange}
           />
-
-          {newItem.previewImage && (
-            <div className="mt-2 w-24 h-24 rounded-md overflow-hidden border border-gray-300">
-              <img
-                src={newItem.previewImage}
-                alt="Preview"
-                className="object-cover w-full h-full"
-              />
+          {newItem.previews.length > 0 && (
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {newItem.previews.map((src, index) => (
+                <div key={index} className="w-20 h-20 rounded-md overflow-hidden border border-gray-300">
+                  <img src={src} alt={`Preview ${index + 1}`} className="object-cover w-full h-full" />
+                </div>
+              ))}
             </div>
           )}
 
@@ -381,19 +393,19 @@ export default function GalleryTable() {
             />
 
             <Input
-              label="Image"
+              label="Images"
               type="file"
+              multiple
               value=""
               onChange={handleEditImageChange}
             />
-        
-            {currentItem.previewImage && (
-              <div className="mt-2 w-24 h-24 rounded-md overflow-hidden border border-gray-300">
-                <img
-                  src={currentItem.previewImage}
-                  alt="Preview"
-                  className="object-cover w-full h-full"
-                />
+            {currentItem.previews && currentItem.previews.length > 0 && (
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {currentItem.previews.map((src, index) => (
+                  <div key={index} className="w-20 h-20 rounded-md overflow-hidden border border-gray-300">
+                    <img src={src} alt={`Preview ${index + 1}`} className="object-cover w-full h-full" />
+                  </div>
+                ))}
               </div>
             )}
 

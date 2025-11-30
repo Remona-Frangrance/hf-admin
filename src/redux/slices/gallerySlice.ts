@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { API_BASE } from '../../config/api';
 
 interface GalleryItem {
   _id: string;
   title: string;
   description: string;
-  imageUrl: string; // Changed from 'image' to 'imageUrl' to match backend
-  subcategory?: string; // Added subcategory
+  images: string[];
+  subcategory?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -34,8 +35,8 @@ export const fetchGallery = createAsyncThunk<
   async (params, { rejectWithValue }) => {
     try {
       const url = params?.subcategory
-        ? `https://hf-backend-production.up.railway.app/api/gallery?subcategory=${encodeURIComponent(params.subcategory)}`
-        : 'https://hf-backend-production.up.railway.app/api/gallery';
+        ? `${API_BASE}/api/gallery?subcategory=${encodeURIComponent(params.subcategory)}`
+        : `${API_BASE}/api/gallery`;
       const response = await axios.get(url);
       return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,7 +55,7 @@ export const addGalleryItem = createAsyncThunk<
   'gallery/add',
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('https://hf-backend-production.up.railway.app/api/gallery/add', formData, {
+      const response = await axios.post(`${API_BASE}/api/gallery/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -75,7 +76,7 @@ export const updateGalleryItem = createAsyncThunk<
   'gallery/update',
   async ({ id, formData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://hf-backend-production.up.railway.app/api/gallery/${id}`, formData, {
+      const response = await axios.put(`${API_BASE}/api/gallery/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -96,7 +97,7 @@ export const deleteGalleryItem = createAsyncThunk<
   'gallery/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://hf-backend-production.up.railway.app/api/gallery/${id}`);
+      await axios.delete(`${API_BASE}/api/gallery/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete gallery item');
@@ -134,7 +135,7 @@ const gallerySlice = createSlice({
         state.error = null;
       })
       .addCase(addGalleryItem.fulfilled, (state, action: PayloadAction<GalleryItem>) => {
-        state.gallery.push(action.payload);
+        state.gallery.unshift(action.payload);
         state.isLoading = false;
       })
       .addCase(addGalleryItem.rejected, (state, action: PayloadAction<any>) => {

@@ -3,7 +3,7 @@ import React from "react";
 interface InputProps {
   label?: string;
   placeholder?: string;
-  value: string;
+  value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   className?: string;
@@ -12,6 +12,7 @@ interface InputProps {
   id?: string;
   required?: boolean;
   error?: string;
+  multiple?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -26,6 +27,7 @@ const Input: React.FC<InputProps> = ({
   id,
   required = false,
   error,
+  multiple = false,
 }) => {
   const inputId = id || name || `input-${label?.toLowerCase().replace(/\s+/g, "-") || Math.random()}`;
 
@@ -46,10 +48,11 @@ const Input: React.FC<InputProps> = ({
         name={name}
         type={type}
         placeholder={placeholder}
-        value={value}
+        {...(type === 'file' ? {} : { value: value || '' })}
         onChange={onChange}
         disabled={disabled}
         required={required}
+        multiple={multiple}
         aria-invalid={!!error}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`

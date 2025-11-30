@@ -20,6 +20,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import SubcategoriesPage from "./pages/Tables/SubCategory";
 import GalleryTable from "./components/tables/GalleryTable/GalleryTable";
+import CatalogPage from "./pages/Tables/Catalog";
 
 export default function App() {
   return (
@@ -43,7 +44,8 @@ export default function App() {
             {/* Tables */}
             <Route path="/categories" element={<BasicTables />} />
             <Route path="/sub-categories" element={<SubcategoriesPage />} />
-          <Route path="/gallery" element={<GalleryTable />} />
+            <Route path="/gallery" element={<GalleryTable />} />
+            <Route path="/catalogs" element={<CatalogPage />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

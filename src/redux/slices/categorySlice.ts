@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { RootState } from './store';
+import { API_BASE } from '../../config/api';
 
 interface Category {
   _id: string; // Changed from id to _id to match MongoDB
@@ -46,7 +47,7 @@ export const fetchCategories = createAsyncThunk(
   ) => {
     try {
       const response = await axios.get(
-        `https://hf-backend-production.up.railway.app/api/categories?page=${page}&limit=${limit}`
+        `${API_BASE}/api/categories?page=${page}&limit=${limit}`
       );
       return response.data; // contains { data: [...], pagination: {...} }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,13 +57,12 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
-
 // Add new category
 export const addCategory = createAsyncThunk(
   'category/add',
   async (categoryData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('https://hf-backend-production.up.railway.app/api/categories', categoryData, {
+      const response = await axios.post(`${API_BASE}/api/categories`, categoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -80,7 +80,7 @@ export const updateCategory = createAsyncThunk(
   'category/update',
   async ({ id, categoryData }: { id: string; categoryData: FormData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://hf-backend-production.up.railway.app/api/categories/${id}`, categoryData, {
+      const response = await axios.put(`${API_BASE}/api/categories/${id}`, categoryData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -98,7 +98,7 @@ export const deleteCategory = createAsyncThunk(
   'category/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://hf-backend-production.up.railway.app/api/categories/${id}`);
+      await axios.delete(`${API_BASE}/api/categories/${id}`);
       return id;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

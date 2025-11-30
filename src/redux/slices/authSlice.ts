@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { API_BASE } from '../../config/api';
 
 interface AuthState {
   token: string | null;
@@ -17,7 +18,7 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('https://hf-backend-production.up.railway.app/admin/login', credentials);
+      const response = await axios.post(`${API_BASE}/admin/login`, credentials);
       return response.data.token; 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
