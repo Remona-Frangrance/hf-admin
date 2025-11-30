@@ -5,14 +5,13 @@ import Button from '../../ui/button/Button';
 import Dialog from '../BasicTables/Dialog';
 import Input from '../BasicTables/Input';
 import { AppDispatch } from '../../../redux/slices/store';
-import { createCatalogItem, deleteCatalogItem, fetchCatalogs, selectCatalogError, selectCatalogLoading, selectCatalogs, updateCatalogItem, CatalogItem } from '../../../redux/slices/catalogSlice';
+import { createCatalogItem, deleteCatalogItem, fetchCatalogs, selectCatalogError, selectCatalogs, updateCatalogItem, CatalogItem } from '../../../redux/slices/catalogSlice';
 import { SUPABASE_URL , API_BASE } from '../../../config/api';
 
 
 export default function CatalogTable() {
   const dispatch = useDispatch<AppDispatch>();
   const items = useSelector(selectCatalogs);
-  const loading = useSelector(selectCatalogLoading);
   const error = useSelector(selectCatalogError);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
